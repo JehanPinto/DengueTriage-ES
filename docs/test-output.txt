@@ -1,0 +1,133 @@
+
+========================================================================
+  AUTOMATED TEST SUITE
+========================================================================
+
+  A. FORWARD CHAINING -- classification and management group
+------------------------------------------------------------------------
+
+  t01  Classic dengue, no warning signs, fit for home care
+      expected : [classification(dengue_without_warning_signs),management_group(a)]
+      derived  : [probable_dengue,dengue_case,classification(dengue_without_warning_signs),management_group(a),avoid_nsaids,daily_review]
+      reported : [classification(dengue_without_warning_signs),management_group(a),avoid_nsaids,daily_review]
+      rules    : [r08,r17,r24,r32,r34,r35]
+      result   : PASS
+
+  t02  Dengue with warning signs: abdominal pain and persistent vomiting
+      expected : [classification(dengue_with_warning_signs),management_group(b)]
+      derived  : [warning_sign_present,probable_dengue,dengue_case,classification(dengue_with_warning_signs),management_group(b),avoid_nsaids]
+      reported : [classification(dengue_with_warning_signs),management_group(b),avoid_nsaids]
+      rules    : [r02,r08,r17,r23,r27,r34]
+      result   : PASS
+
+  t03  Dengue without warning signs in a pregnant patient
+      expected : [classification(dengue_without_warning_signs),management_group(b)]
+      derived  : [coexisting_risk,probable_dengue,dengue_case,classification(dengue_without_warning_signs),management_group(b),avoid_nsaids]
+      reported : [classification(dengue_without_warning_signs),management_group(b),avoid_nsaids]
+      rules    : [r05,r08,r17,r24,r28,r34]
+      result   : PASS
+
+  t04  Dengue shock syndrome: narrow pulse pressure and poor perfusion
+      expected : [classification(severe_dengue),management_group(c)]
+      derived  : [warning_sign_present,shock,probable_dengue,severe_plasma_leakage,dengue_case,severe_dengue,classification(severe_dengue),management_group(c),avoid_nsaids]
+      reported : [classification(severe_dengue),management_group(c),avoid_nsaids]
+      rules    : [r02,r03,r08,r09,r17,r19,r22,r26,r34]
+      result   : PASS
+
+  t05  Severe dengue by severe organ impairment: AST or ALT at or above 1000
+      expected : [classification(severe_dengue),management_group(c)]
+      derived  : [warning_sign_present,probable_dengue,severe_organ_impairment,dengue_case,severe_dengue,classification(severe_dengue),management_group(c),avoid_nsaids]
+      reported : [classification(severe_dengue),management_group(c),avoid_nsaids]
+      rules    : [r02,r08,r13,r17,r21,r22,r26,r34]
+      result   : PASS
+
+  t06  Laboratory-confirmed dengue with severe bleeding
+      expected : [classification(severe_dengue),management_group(c)]
+      derived  : [warning_sign_present,confirmed_dengue,severe_bleeding,dengue_case,severe_dengue,classification(severe_dengue),management_group(c),avoid_nsaids]
+      reported : [classification(severe_dengue),management_group(c),avoid_nsaids]
+      rules    : [r02,r07,r11,r18,r20,r22,r26,r34]
+      result   : PASS
+
+  t07  Febrile patient who does not meet the dengue case definition
+      expected : [classification(dengue_not_established)]
+      derived  : [classification(dengue_not_established)]
+      reported : [classification(dengue_not_established)]
+      rules    : [r25]
+      result   : PASS
+
+  t08  Laboratory-confirmed dengue in a patient who lives alone
+      expected : [classification(dengue_without_warning_signs),management_group(b)]
+      derived  : [social_risk,confirmed_dengue,dengue_case,classification(dengue_without_warning_signs),management_group(b),avoid_nsaids]
+      reported : [classification(dengue_without_warning_signs),management_group(b),avoid_nsaids]
+      rules    : [r06,r07,r18,r24,r29,r34]
+      result   : PASS
+
+  t09  Laboratory warning sign: rising haematocrit with falling platelets
+      expected : [lab_warning,warning_sign_present,classification(dengue_with_warning_signs),management_group(b)]
+      derived  : [lab_warning,warning_sign_present,probable_dengue,dengue_case,classification(dengue_with_warning_signs),management_group(b),avoid_nsaids]
+      reported : [classification(dengue_with_warning_signs),management_group(b),avoid_nsaids]
+      rules    : [r01,r02,r08,r17,r23,r27,r34]
+      result   : PASS
+
+  t10  Recovering inpatient assessed against the discharge criteria
+      expected : [discharge_ready,classification(dengue_without_warning_signs)]
+      derived  : [confirmed_dengue,dengue_case,classification(dengue_without_warning_signs),management_group(a),discharge_ready,avoid_nsaids,daily_review]
+      reported : [classification(dengue_without_warning_signs),management_group(a),discharge_ready,avoid_nsaids,daily_review]
+      rules    : [r07,r18,r24,r32,r33,r34,r35]
+      result   : PASS
+
+  t11  Dengue without warning signs but unable to tolerate oral fluids
+      expected : [classification(dengue_without_warning_signs),management_group(b)]
+      derived  : [probable_dengue,dengue_case,classification(dengue_without_warning_signs),management_group(b),avoid_nsaids]
+      reported : [classification(dengue_without_warning_signs),management_group(b),avoid_nsaids]
+      rules    : [r08,r17,r24,r30,r34]
+      result   : PASS
+
+  t12  Onset of the critical phase at defervescence
+      expected : [critical_phase_onset,classification(dengue_with_warning_signs),management_group(b)]
+      derived  : [lab_warning,warning_sign_present,probable_dengue,critical_phase_onset,dengue_case,classification(dengue_with_warning_signs),management_group(b),avoid_nsaids]
+      reported : [classification(dengue_with_warning_signs),management_group(b),critical_phase_onset,avoid_nsaids]
+      rules    : [r01,r02,r08,r16,r17,r23,r27,r34]
+      result   : PASS
+------------------------------------------------------------------------
+  forward chaining: 12 passed, 0 failed
+
+  B. BACKWARD CHAINING -- goal driven proof
+------------------------------------------------------------------------
+  b01  goal severe_dengue on scenario t04
+      expected proved, got proved  ->  PASS
+  b02  goal severe_dengue on scenario t01
+      expected not_proved, got not_proved  ->  PASS
+  b03  goal classification(dengue_with_warning_signs) on scenario t02
+      expected proved, got proved  ->  PASS
+  b04  goal management_group(a) on scenario t01
+      expected proved, got proved  ->  PASS
+  b05  goal management_group(a) on scenario t03
+      expected not_proved, got not_proved  ->  PASS
+  b06  goal management_group(b) on scenario t03
+      expected proved, got proved  ->  PASS
+  b07  goal discharge_ready on scenario t10
+      expected proved, got proved  ->  PASS
+  b08  goal dengue_case on scenario t07
+      expected not_proved, got not_proved  ->  PASS
+------------------------------------------------------------------------
+  backward chaining: 8 passed, 0 failed
+
+  C. EXPLANATION -- every conclusion is justified and cited
+------------------------------------------------------------------------
+  t01  [classification(dengue_without_warning_signs),management_group(a),avoid_nsaids,daily_review] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t02  [classification(dengue_with_warning_signs),management_group(b),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t03  [classification(dengue_without_warning_signs),management_group(b),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t04  [classification(severe_dengue),management_group(c),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t05  [classification(severe_dengue),management_group(c),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t06  [classification(severe_dengue),management_group(c),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t07  [classification(dengue_not_established)] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t08  [classification(dengue_without_warning_signs),management_group(b),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t09  [classification(dengue_with_warning_signs),management_group(b),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t10  [classification(dengue_without_warning_signs),management_group(a),discharge_ready,avoid_nsaids,daily_review] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t11  [classification(dengue_without_warning_signs),management_group(b),avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+  t12  [classification(dengue_with_warning_signs),management_group(b),critical_phase_onset,avoid_nsaids] conclusions, [] unjustified, [] uncited rules  ->  PASS
+------------------------------------------------------------------------
+  explanation: 12 passed, 0 failed
+  every rule in the knowledge base carries a source: YES
+

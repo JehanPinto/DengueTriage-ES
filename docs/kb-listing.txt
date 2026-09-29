@@ -1,0 +1,227 @@
+
+========================================================================
+   DengueTriage-ES
+   An expert system for the clinical triage of suspected dengue
+------------------------------------------------------------------------
+   Knowledge base : WHO (2009) Dengue: Guidelines for Diagnosis,
+                    Treatment, Prevention and Control --
+                    Figure 1.4 and Chapter 2
+   Rules          : 35      Facts : 25 static + 42 askable
+------------------------------------------------------------------------
+   FOR TEACHING AND ASSESSMENT ONLY. This program is not a
+   medical device and must not be used to treat a real patient.
+========================================================================
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+========================================================================
+  BROWSE THE KNOWLEDGE BASE
+========================================================================
+   1  All rules with their sources
+   2  Static facts
+   3  Askable facts (the questions)
+   4  Source documents
+------------------------------------------------------------------------
+  > 
+
+  r01   (layer 1)
+    IF   [hct_rising,platelet_dropping]
+    THEN rising haematocrit with falling platelet count
+    SRC  [WHO2009] Figure 1.4, p.11 -- warning signs: "Laboratory: increase in HCT concurrent with rapid decrease in platelet count"
+
+  r02   (layer 1)
+    IF   [any_of([abdominal_pain,persistent_vomiting,fluid_accumulation,mucosal_bleeding,lethargy_restlessness,liver_enlargement,lab_warning])]
+    THEN at least one warning sign is present
+    SRC  [WHO2009] Figure 1.4, p.11 -- the seven warning signs
+
+  r03   (layer 1)
+    IF   [narrow_pulse_pressure]
+    THEN shock
+    SRC  [WHO2009] s.2.1.4, p.28 -- "The patient is considered to have shock if the pulse pressure ... is <= 20 mm Hg"
+
+  r04   (layer 1)
+    IF   [poor_perfusion]
+    THEN shock
+    SRC  [WHO2009] s.2.1.4, p.28 -- "or he/she has signs of poor capillary perfusion (cold extremities, delayed capillary refill, or rapid pulse rate)"
+
+  r05   (layer 1)
+    IF   [any_of([pregnancy,infancy,old_age,obesity,diabetes_mellitus,renal_failure,chronic_haemolytic_disease])]
+    THEN a co-existing condition is present
+    SRC  [WHO2009] s.2.3.2.2, p.34 -- "co-existing conditions that may make dengue or its management more complicated (such as pregnancy, infancy, old age, obesity, diabetes mellitus, renal failure, chronic haemolytic diseases)"
+
+  r06   (layer 1)
+    IF   [any_of([lives_alone,lives_far_from_facility])]
+    THEN social circumstances prevent safe home care
+    SRC  [WHO2009] s.2.3.2.2, p.34 -- "certain social circumstances (such as living alone, or living far from a health facility without reliable means of transport)"
+
+  r07   (layer 1)
+    IF   [lab_confirmed]
+    THEN laboratory-confirmed dengue
+    SRC  [WHO2009] Figure 1.4, p.11 -- "Laboratory-confirmed dengue"
+
+  r08   (layer 2)
+    IF   [endemic_exposure,fever,atleast(2,dengue_criterion)]
+    THEN probable dengue
+    SRC  [WHO2009] Figure 1.4, p.11 -- "Probable dengue: live in / travel to dengue endemic area. Fever and 2 of the following criteria: Nausea, vomiting; Rash; Aches and pains; Tourniquet test positive; Leukopenia; Any warning sign"
+
+  r09   (layer 2)
+    IF   [shock]
+    THEN severe plasma leakage
+    SRC  [WHO2009] Figure 1.4, p.11 -- "Severe plasma leakage leading to: Shock (DSS)"
+
+  r10   (layer 2)
+    IF   [fluid_accumulation,respiratory_distress]
+    THEN severe plasma leakage
+    SRC  [WHO2009] Figure 1.4, p.11 -- "Fluid accumulation with respiratory distress"
+
+  r11   (layer 2)
+    IF   [overt_bleeding_unstable]
+    THEN severe bleeding
+    SRC  [WHO2009] s.2.3.3, p.41 -- "persistent and/or severe overt bleeding in the presence of unstable haemodynamic status, regardless of the haematocrit level"
+
+  r12   (layer 2)
+    IF   [hct_drop_after_resuscitation]
+    THEN severe bleeding
+    SRC  [WHO2009] s.2.3.3, p.41 -- "a decrease in haematocrit after fluid resuscitation together with unstable haemodynamic status"
+
+  r13   (layer 2)
+    IF   [ast_alt_ge_1000]
+    THEN severe organ impairment
+    SRC  [WHO2009] Figure 1.4, p.11 -- "Severe organ involvement: Liver: AST or ALT >= 1000"
+
+  r14   (layer 2)
+    IF   [impaired_consciousness]
+    THEN severe organ impairment
+    SRC  [WHO2009] Figure 1.4, p.11 -- "CNS: Impaired consciousness"
+
+  r15   (layer 2)
+    IF   [heart_impairment]
+    THEN severe organ impairment
+    SRC  [WHO2009] Figure 1.4, p.11 -- "Heart and other organs"
+
+  r16   (layer 2)
+    IF   [defervescence,day_of_illness_3_7,hct_rising]
+    THEN the critical phase has begun
+    SRC  [WHO2009] s.2.1.2, p.26 -- "Around the time of defervescence ... usually on days 3-7 of illness, an increase in capillary permeability in parallel with increasing haematocrit levels may occur. This marks the beginning of the critical phase"
+
+  r17   (layer 3)
+    IF   [probable_dengue]
+    THEN the dengue case definition is met
+    SRC  [WHO2009] Figure 1.4, p.11 -- probable dengue enters the case classification
+
+  r18   (layer 3)
+    IF   [confirmed_dengue]
+    THEN the dengue case definition is met
+    SRC  [WHO2009] Figure 1.4, p.11 -- "Laboratory-confirmed dengue (important when no sign of plasma leakage)"
+
+  r19   (layer 4)
+    IF   [dengue_case,severe_plasma_leakage]
+    THEN severe dengue
+    SRC  [WHO2009] s.2.1.4, p.27 -- "Severe dengue is defined by one or more of the following: (i) plasma leakage that may lead to shock (dengue shock) and/or fluid accumulation, with or without respiratory distress"
+
+  r20   (layer 4)
+    IF   [dengue_case,severe_bleeding]
+    THEN severe dengue
+    SRC  [WHO2009] s.2.1.4, p.27 -- "and/or (ii) severe bleeding"
+
+  r21   (layer 4)
+    IF   [dengue_case,severe_organ_impairment]
+    THEN severe dengue
+    SRC  [WHO2009] s.2.1.4, p.27 -- "and/or (iii) severe organ impairment"
+
+  r22   (layer 5)
+    IF   [severe_dengue]
+    THEN SEVERE DENGUE
+    SRC  [WHO2009] Figure 1.4, p.11 -- third classification band "SEVERE DENGUE"
+
+  r23   (layer 5)
+    IF   [dengue_case,warning_sign_present,absent(severe_dengue)]
+    THEN DENGUE WITH WARNING SIGNS
+    SRC  [WHO2009] Figure 1.4, p.11 -- "DENGUE with warning signs"
+
+  r24   (layer 5)
+    IF   [dengue_case,absent(warning_sign_present),absent(severe_dengue)]
+    THEN DENGUE WITHOUT WARNING SIGNS
+    SRC  [WHO2009] Figure 1.4, p.11 -- "DENGUE without warning signs"
+
+  r25   (layer 5)
+    IF   [absent(dengue_case)]
+    THEN DENGUE CASE DEFINITION NOT MET
+    SRC  [WHO2009] Figure 1.4, p.11 -- the case definition is not met, so no dengue classification can be assigned
+
+  r26   (layer 6)
+    IF   [severe_dengue]
+    THEN GROUP C -- requires emergency treatment and urgent referral
+    SRC  [WHO2009] s.2.3.2.3, p.35 -- "Group C - patients who require emergency treatment and urgent referral when they have severe dengue"
+
+  r27   (layer 6)
+    IF   [classification(dengue_with_warning_signs)]
+    THEN GROUP B -- refer for in-hospital management
+    SRC  [WHO2009] s.2.3.2.2, p.34 -- "These include patients with warning signs"
+
+  r28   (layer 6)
+    IF   [dengue_case,coexisting_risk,absent(severe_dengue)]
+    THEN GROUP B -- refer for in-hospital management
+    SRC  [WHO2009] s.2.3.2.2, p.34 -- "those with co-existing conditions that may make dengue or its management more complicated"
+
+  r29   (layer 6)
+    IF   [dengue_case,social_risk,absent(severe_dengue)]
+    THEN GROUP B -- refer for in-hospital management
+    SRC  [WHO2009] s.2.3.2.2, p.34 -- "and those with certain social circumstances"
+
+  r30   (layer 6)
+    IF   [dengue_case,absent(tolerates_oral_fluids),absent(severe_dengue)]
+    THEN GROUP B -- refer for in-hospital management
+    SRC  [WHO2009] s.2.3.2.1, p.33 -- Group A is restricted to "patients who are able to tolerate adequate volumes of oral fluids", so a patient who cannot must be managed in hospital
+
+  r31   (layer 6)
+    IF   [dengue_case,absent(passes_urine_6h),absent(severe_dengue)]
+    THEN GROUP B -- refer for in-hospital management
+    SRC  [WHO2009] s.2.3.2.1, p.33 -- Group A is restricted to patients who "pass urine at least once every six hours"
+
+  r32   (layer 6)
+    IF   [classification(dengue_without_warning_signs),tolerates_oral_fluids,passes_urine_6h,stable_haematocrit,absent(coexisting_risk),absent(social_risk)]
+    THEN GROUP A -- may be managed at home
+    SRC  [WHO2009] s.2.3.2.1, p.33 -- "These are patients who are able to tolerate adequate volumes of oral fluids and pass urine at least once every six hours, and do not have any of the warning signs ... Those with stable haematocrit can be sent home"
+
+  r33   (layer 6)
+    IF   [afebrile_48h,clinical_improvement,platelet_rising,stable_haematocrit]
+    THEN the patient meets the discharge criteria
+    SRC  [WHO2009] Textbox F, p.48 -- "Discharge criteria (all of the following conditions must be present): No fever for 48 hours. Improvement in clinical status ... Increasing trend of platelet count. Stable haematocrit without intravenous fluids"
+
+  r34   (layer 6)
+    IF   [dengue_case]
+    THEN NSAIDs and aspirin must be avoided
+    SRC  [WHO2009] s.2.3.2.1, p.34 -- "Do not give acetylsalicylic acid (aspirin), ibuprofen or other non-steroidal anti-inflammatory agents (NSAIDs) as these drugs may aggravate gastritis or bleeding"
+
+  r35   (layer 6)
+    IF   [management_group(a)]
+    THEN daily ambulatory review is required
+    SRC  [WHO2009] s.2.3.2.1, p.34 -- "Ambulatory patients should be reviewed daily for disease progression ... until they are out of the critical period"
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+  Goodbye.
+

@@ -1,0 +1,173 @@
+
+========================================================================
+   DengueTriage-ES
+   An expert system for the clinical triage of suspected dengue
+------------------------------------------------------------------------
+   Knowledge base : WHO (2009) Dengue: Guidelines for Diagnosis,
+                    Treatment, Prevention and Control --
+                    Figure 1.4 and Chapter 2
+   Rules          : 35      Facts : 25 static + 42 askable
+------------------------------------------------------------------------
+   FOR TEACHING AND ASSESSMENT ONLY. This program is not a
+   medical device and must not be used to treat a real patient.
+========================================================================
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+========================================================================
+  BUILT-IN SCENARIOS
+========================================================================
+   t01  Classic dengue, no warning signs, fit for home care
+   t02  Dengue with warning signs: abdominal pain and persistent vomiting
+   t03  Dengue without warning signs in a pregnant patient
+   t04  Dengue shock syndrome: narrow pulse pressure and poor perfusion
+   t05  Severe dengue by severe organ impairment: AST or ALT at or above 1000
+   t06  Laboratory-confirmed dengue with severe bleeding
+   t07  Febrile patient who does not meet the dengue case definition
+   t08  Laboratory-confirmed dengue in a patient who lives alone
+   t09  Laboratory warning sign: rising haematocrit with falling platelets
+   t10  Recovering inpatient assessed against the discharge criteria
+   t11  Dengue without warning signs but unable to tolerate oral fluids
+   t12  Onset of the critical phase at defervescence
+------------------------------------------------------------------------
+  Enter a scenario id (for example t04), or b to go back
+  > 
+========================================================================
+  SCENARIO
+========================================================================
+  t01  Classic dengue, no warning signs, fit for home care
+
+  Observations entered into working memory:
+    - lives in or has travelled to a dengue-endemic area
+    - fever
+    - nausea or vomiting
+    - rash
+    - aches and pains
+    - the patient tolerates adequate volumes of oral fluids
+    - the patient passes urine at least once every six hours
+    - a stable haematocrit
+
+========================================================================
+  INFERENCE -- rules firing in order
+========================================================================
+  [1] r08 fires
+      premises : [endemic_exposure,fever,nausea_vomiting,rash,aches_pains]
+      concludes: probable dengue
+  [2] r17 fires
+      premises : [probable_dengue]
+      concludes: the dengue case definition is met
+  [3] r24 fires
+      premises : [dengue_case,absent(warning_sign_present),absent(severe_dengue)]
+      concludes: DENGUE WITHOUT WARNING SIGNS
+  [4] r32 fires
+      premises : [classification(dengue_without_warning_signs),tolerates_oral_fluids,passes_urine_6h,stable_haematocrit,absent(coexisting_risk),absent(social_risk)]
+      concludes: GROUP A -- may be managed at home
+  [5] r34 fires
+      premises : [dengue_case]
+      concludes: NSAIDs and aspirin must be avoided
+  [6] r35 fires
+      premises : [management_group(a)]
+      concludes: daily ambulatory review is required
+
+========================================================================
+  CONCLUSION
+========================================================================
+  Case classification : DENGUE WITHOUT WARNING SIGNS
+  Management group    : GROUP A -- may be managed at home
+
+  Everything the system concluded:
+    - DENGUE WITHOUT WARNING SIGNS
+    - GROUP A -- may be managed at home
+    - NSAIDs and aspirin must be avoided
+    - daily ambulatory review is required
+
+  RECOMMENDED ACTION
+------------------------------------------------------------------------
+
+  Because GROUP A -- may be managed at home:
+    * Manage at home. Issue the WHO home care card.
+    * Encourage oral rehydration solution, fruit juice and other fluids with electrolytes and sugar.
+    * Paracetamol for high fever, at intervals of not less than six hours; tepid sponging.
+    * Return to hospital immediately if there is no clinical improvement, deterioration around defervescence, severe abdominal pain, persistent vomiting, cold clammy extremities, lethargy or restlessness, bleeding, or no urine for 4 to 6 hours.
+
+  Because NSAIDs and aspirin must be avoided:
+    * Do not give aspirin, mefenamic acid, ibuprofen, other NSAIDs or steroids. Antibiotics are not indicated.
+
+  Because daily ambulatory review is required:
+    * Review daily for white cell count, defervescence and warning signs until out of the critical period.
+
+
+========================================================================
+  REASONING -- how this conclusion was reached
+========================================================================
+
+  Step 1   rule r08
+    IF    lives in or has travelled to a dengue-endemic area
+          AND fever
+          AND nausea or vomiting
+          AND rash
+          AND aches and pains
+    THEN  probable dengue
+    src   [WHO2009] Figure 1.4, p.11 -- "Probable dengue: live in / travel to dengue endemic area. Fever and 2 of the following criteria: Nausea, vomiting; Rash; Aches and pains; Tourniquet test positive; Leukopenia; Any warning sign"
+
+  Step 2   rule r17
+    IF    probable dengue
+    THEN  the dengue case definition is met
+    src   [WHO2009] Figure 1.4, p.11 -- probable dengue enters the case classification
+
+  Step 3   rule r24
+    IF    the dengue case definition is met
+          AND NOT established: at least one warning sign is present
+          AND NOT established: severe dengue
+    THEN  DENGUE WITHOUT WARNING SIGNS
+    src   [WHO2009] Figure 1.4, p.11 -- "DENGUE without warning signs"
+
+  Step 4   rule r32
+    IF    DENGUE WITHOUT WARNING SIGNS
+          AND the patient tolerates adequate volumes of oral fluids
+          AND the patient passes urine at least once every six hours
+          AND a stable haematocrit
+          AND NOT established: a co-existing condition is present
+          AND NOT established: social circumstances prevent safe home care
+    THEN  GROUP A -- may be managed at home
+    src   [WHO2009] s.2.3.2.1, p.33 -- "These are patients who are able to tolerate adequate volumes of oral fluids and pass urine at least once every six hours, and do not have any of the warning signs ... Those with stable haematocrit can be sent home"
+
+  Step 5   rule r34
+    IF    the dengue case definition is met
+    THEN  NSAIDs and aspirin must be avoided
+    src   [WHO2009] s.2.3.2.1, p.34 -- "Do not give acetylsalicylic acid (aspirin), ibuprofen or other non-steroidal anti-inflammatory agents (NSAIDs) as these drugs may aggravate gastritis or bleeding"
+
+  Step 6   rule r35
+    IF    GROUP A -- may be managed at home
+    THEN  daily ambulatory review is required
+    src   [WHO2009] s.2.3.2.1, p.34 -- "Ambulatory patients should be reviewed daily for disease progression ... until they are out of the critical period"
+
+  Use menu option 5 to see the proof tree for any single
+  conclusion, and option 4 to see this trace again.
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+  Goodbye.
+

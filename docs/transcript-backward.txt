@@ -1,0 +1,137 @@
+
+========================================================================
+   DengueTriage-ES
+   An expert system for the clinical triage of suspected dengue
+------------------------------------------------------------------------
+   Knowledge base : WHO (2009) Dengue: Guidelines for Diagnosis,
+                    Treatment, Prevention and Control --
+                    Figure 1.4 and Chapter 2
+   Rules          : 35      Facts : 25 static + 42 askable
+------------------------------------------------------------------------
+   FOR TEACHING AND ASSESSMENT ONLY. This program is not a
+   medical device and must not be used to treat a real patient.
+========================================================================
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+========================================================================
+  NEW CONSULTATION -- BACKWARD CHAINING
+========================================================================
+  Choose the hypothesis to test:
+------------------------------------------------------------------------
+   1  Does this patient have SEVERE DENGUE?
+   2  Does this patient have DENGUE WITH WARNING SIGNS?
+   3  Can this patient be managed at home (GROUP A)?
+   4  Does this patient need in-hospital care (GROUP B)?
+   5  Does this patient meet the DISCHARGE criteria?
+------------------------------------------------------------------------
+  > 
+  Goal: severe dengue
+  I will ask only the questions I need. Type w for why.
+
+  ? Does the patient live in, or has travelled in the last 14 days to, a dengue-endemic area?
+    [y = yes, n = no, w = why am I being asked this]
+    > 
+    WHY: I am working backwards through these goals.
+    Top goal: severe dengue
+      needed for the above: the dengue case definition is met
+        needed for the above: probable dengue
+          needed for the above: lives in or has travelled to a dengue-endemic area
+
+
+  ? Does the patient live in, or has travelled in the last 14 days to, a dengue-endemic area?
+    [y = yes, n = no, w = why am I being asked this]
+    > 
+  ? Does the patient have fever, or a history of fever in this illness?
+    [y = yes, n = no, w = why am I being asked this]
+    > 
+  ? Nausea or vomiting?
+    [y = yes, n = no, w = why am I being asked this]
+    > 
+  ? Rash?
+    [y = yes, n = no, w = why am I being asked this]
+    > 
+  ? Is the pulse pressure 20 mmHg or less?
+    [y = yes, n = no, w = why am I being asked this]
+    > 
+========================================================================
+  RESULT -- THE GOAL IS PROVED
+========================================================================
+  Proved: severe dengue
+
+  Proof tree:
+
+  severe dengue   <- rule r19
+      [WHO2009] s.2.1.4, p.27 -- "Severe dengue is defined by one or more of the following: (i) plasma leakage that may lead to shock (dengue shock) and/or fluid accumulation, with or without respiratory distress"
+      the dengue case definition is met   <- rule r17
+          [WHO2009] Figure 1.4, p.11 -- probable dengue enters the case classification
+          probable dengue   <- rule r08
+              [WHO2009] Figure 1.4, p.11 -- "Probable dengue: live in / travel to dengue endemic area. Fever and 2 of the following criteria: Nausea, vomiting; Rash; Aches and pains; Tourniquet test positive; Leukopenia; Any warning sign"
+              lives in or has travelled to a dengue-endemic area   (answered by the user)
+              fever   (answered by the user)
+              at least 2 of the probable-dengue criteria   (counted)
+                  nausea or vomiting   (answered by the user)
+                  rash   (answered by the user)
+      severe plasma leakage   <- rule r09
+          [WHO2009] Figure 1.4, p.11 -- "Severe plasma leakage leading to: Shock (DSS)"
+          shock   <- rule r03
+              [WHO2009] s.2.1.4, p.28 -- "The patient is considered to have shock if the pulse pressure ... is <= 20 mm Hg"
+              a pulse pressure of 20 mmHg or less   (answered by the user)
+
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+  Not a menu option.
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+  Not a menu option.
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+  Goodbye.
+

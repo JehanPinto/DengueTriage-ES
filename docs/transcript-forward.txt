@@ -1,0 +1,230 @@
+
+========================================================================
+   DengueTriage-ES
+   An expert system for the clinical triage of suspected dengue
+------------------------------------------------------------------------
+   Knowledge base : WHO (2009) Dengue: Guidelines for Diagnosis,
+                    Treatment, Prevention and Control --
+                    Figure 1.4 and Chapter 2
+   Rules          : 35      Facts : 25 static + 42 askable
+------------------------------------------------------------------------
+   FOR TEACHING AND ASSESSMENT ONLY. This program is not a
+   medical device and must not be used to treat a real patient.
+========================================================================
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+========================================================================
+  BUILT-IN SCENARIOS
+========================================================================
+   t01  Classic dengue, no warning signs, fit for home care
+   t02  Dengue with warning signs: abdominal pain and persistent vomiting
+   t03  Dengue without warning signs in a pregnant patient
+   t04  Dengue shock syndrome: narrow pulse pressure and poor perfusion
+   t05  Severe dengue by severe organ impairment: AST or ALT at or above 1000
+   t06  Laboratory-confirmed dengue with severe bleeding
+   t07  Febrile patient who does not meet the dengue case definition
+   t08  Laboratory-confirmed dengue in a patient who lives alone
+   t09  Laboratory warning sign: rising haematocrit with falling platelets
+   t10  Recovering inpatient assessed against the discharge criteria
+   t11  Dengue without warning signs but unable to tolerate oral fluids
+   t12  Onset of the critical phase at defervescence
+------------------------------------------------------------------------
+  Enter a scenario id (for example t04), or b to go back
+  > 
+========================================================================
+  SCENARIO
+========================================================================
+  t04  Dengue shock syndrome: narrow pulse pressure and poor perfusion
+
+  Observations entered into working memory:
+    - lives in or has travelled to a dengue-endemic area
+    - fever
+    - nausea or vomiting
+    - aches and pains
+    - abdominal pain or tenderness
+    - a pulse pressure of 20 mmHg or less
+    - signs of poor capillary perfusion
+
+========================================================================
+  INFERENCE -- rules firing in order
+========================================================================
+  [1] r02 fires
+      premises : [abdominal_pain]
+      concludes: at least one warning sign is present
+  [2] r03 fires
+      premises : [narrow_pulse_pressure]
+      concludes: shock
+  [3] r08 fires
+      premises : [endemic_exposure,fever,nausea_vomiting,aches_pains,warning_sign_present]
+      concludes: probable dengue
+  [4] r09 fires
+      premises : [shock]
+      concludes: severe plasma leakage
+  [5] r17 fires
+      premises : [probable_dengue]
+      concludes: the dengue case definition is met
+  [6] r19 fires
+      premises : [dengue_case,severe_plasma_leakage]
+      concludes: severe dengue
+  [7] r22 fires
+      premises : [severe_dengue]
+      concludes: SEVERE DENGUE
+  [8] r26 fires
+      premises : [severe_dengue]
+      concludes: GROUP C -- requires emergency treatment and urgent referral
+  [9] r34 fires
+      premises : [dengue_case]
+      concludes: NSAIDs and aspirin must be avoided
+
+========================================================================
+  CONCLUSION
+========================================================================
+  Case classification : SEVERE DENGUE
+  Management group    : GROUP C -- requires emergency treatment and urgent referral
+
+  Everything the system concluded:
+    - SEVERE DENGUE
+    - GROUP C -- requires emergency treatment and urgent referral
+    - NSAIDs and aspirin must be avoided
+
+  RECOMMENDED ACTION
+------------------------------------------------------------------------
+
+  Because GROUP C -- requires emergency treatment and urgent referral:
+    * EMERGENCY. Admit to a hospital with intensive care and blood transfusion facilities, and refer urgently.
+    * Begin judicious intravenous resuscitation with isotonic crystalloid; use colloid in hypotensive shock.
+    * Obtain haematocrit before and after fluid resuscitation where possible.
+    * Transfuse as soon as severe bleeding is suspected; do not wait for the haematocrit to fall.
+
+  Because NSAIDs and aspirin must be avoided:
+    * Do not give aspirin, mefenamic acid, ibuprofen, other NSAIDs or steroids. Antibiotics are not indicated.
+
+
+========================================================================
+  REASONING -- how this conclusion was reached
+========================================================================
+
+  Step 1   rule r02
+    IF    abdominal pain or tenderness
+    THEN  at least one warning sign is present
+    src   [WHO2009] Figure 1.4, p.11 -- the seven warning signs
+
+  Step 2   rule r03
+    IF    a pulse pressure of 20 mmHg or less
+    THEN  shock
+    src   [WHO2009] s.2.1.4, p.28 -- "The patient is considered to have shock if the pulse pressure ... is <= 20 mm Hg"
+
+  Step 3   rule r08
+    IF    lives in or has travelled to a dengue-endemic area
+          AND fever
+          AND nausea or vomiting
+          AND aches and pains
+          AND at least one warning sign is present
+    THEN  probable dengue
+    src   [WHO2009] Figure 1.4, p.11 -- "Probable dengue: live in / travel to dengue endemic area. Fever and 2 of the following criteria: Nausea, vomiting; Rash; Aches and pains; Tourniquet test positive; Leukopenia; Any warning sign"
+
+  Step 4   rule r09
+    IF    shock
+    THEN  severe plasma leakage
+    src   [WHO2009] Figure 1.4, p.11 -- "Severe plasma leakage leading to: Shock (DSS)"
+
+  Step 5   rule r17
+    IF    probable dengue
+    THEN  the dengue case definition is met
+    src   [WHO2009] Figure 1.4, p.11 -- probable dengue enters the case classification
+
+  Step 6   rule r19
+    IF    the dengue case definition is met
+          AND severe plasma leakage
+    THEN  severe dengue
+    src   [WHO2009] s.2.1.4, p.27 -- "Severe dengue is defined by one or more of the following: (i) plasma leakage that may lead to shock (dengue shock) and/or fluid accumulation, with or without respiratory distress"
+
+  Step 7   rule r22
+    IF    severe dengue
+    THEN  SEVERE DENGUE
+    src   [WHO2009] Figure 1.4, p.11 -- third classification band "SEVERE DENGUE"
+
+  Step 8   rule r26
+    IF    severe dengue
+    THEN  GROUP C -- requires emergency treatment and urgent referral
+    src   [WHO2009] s.2.3.2.3, p.35 -- "Group C - patients who require emergency treatment and urgent referral when they have severe dengue"
+
+  Step 9   rule r34
+    IF    the dengue case definition is met
+    THEN  NSAIDs and aspirin must be avoided
+    src   [WHO2009] s.2.3.2.1, p.34 -- "Do not give acetylsalicylic acid (aspirin), ibuprofen or other non-steroidal anti-inflammatory agents (NSAIDs) as these drugs may aggravate gastritis or bleeding"
+
+  Use menu option 5 to see the proof tree for any single
+  conclusion, and option 4 to see this trace again.
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+========================================================================
+  EXPLAIN A CONCLUSION
+========================================================================
+   1  SEVERE DENGUE
+   2  GROUP C -- requires emergency treatment and urgent referral
+   3  NSAIDs and aspirin must be avoided
+------------------------------------------------------------------------
+  Enter a number > 
+  HOW was this reached?
+
+  SEVERE DENGUE   <- rule r22
+      [WHO2009] Figure 1.4, p.11 -- third classification band "SEVERE DENGUE"
+      severe dengue   <- rule r19
+          [WHO2009] s.2.1.4, p.27 -- "Severe dengue is defined by one or more of the following: (i) plasma leakage that may lead to shock (dengue shock) and/or fluid accumulation, with or without respiratory distress"
+          the dengue case definition is met   <- rule r17
+              [WHO2009] Figure 1.4, p.11 -- probable dengue enters the case classification
+              probable dengue   <- rule r08
+                  [WHO2009] Figure 1.4, p.11 -- "Probable dengue: live in / travel to dengue endemic area. Fever and 2 of the following criteria: Nausea, vomiting; Rash; Aches and pains; Tourniquet test positive; Leukopenia; Any warning sign"
+                  lives in or has travelled to a dengue-endemic area   (observed)
+                  fever   (observed)
+                  nausea or vomiting   (observed)
+                  aches and pains   (observed)
+                  at least one warning sign is present   <- rule r02
+                      [WHO2009] Figure 1.4, p.11 -- the seven warning signs
+                      abdominal pain or tenderness   (observed)
+          severe plasma leakage   <- rule r09
+              [WHO2009] Figure 1.4, p.11 -- "Severe plasma leakage leading to: Shock (DSS)"
+              shock   <- rule r03
+                  [WHO2009] s.2.1.4, p.28 -- "The patient is considered to have shock if the pulse pressure ... is <= 20 mm Hg"
+                  a pulse pressure of 20 mmHg or less   (observed)
+
+  MAIN MENU
+------------------------------------------------------------------------
+   1  New consultation  (forward chaining, data driven)
+   2  New consultation  (backward chaining, goal driven)
+   3  Run a built-in scenario
+   4  Show the reasoning trace of the last consultation
+   5  Explain a conclusion  (HOW was it reached?)
+   6  Browse the knowledge base
+   7  Run the automated test suite
+   8  Help
+   0  Quit
+------------------------------------------------------------------------
+  > 
+  Goodbye.
+
